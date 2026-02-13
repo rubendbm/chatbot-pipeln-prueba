@@ -1,6 +1,6 @@
 # Pipeline CI/CD con GitHub Actions, Ansible y GCP
 
-## Despliegue Automatizado de Crypto Chatbot (Frontend + Backend)
+## Despliegue Automatizado del Crypto Chatbot (Frontend + Backend)
 
 ---
 
