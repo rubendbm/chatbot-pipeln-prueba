@@ -54,7 +54,7 @@ export REGION=us-central1
 
 ---
 
-## 3. Paso 1 — Service Account de CI en GCP
+##  Paso 1 — Service Account de CI en GCP
 
 Creamos una service account dedicada exclusivamente para GitHub Actions. Esta cuenta se usará para autenticarse contra GCP y subir las imágenes Docker al Artifact Registry.
 
@@ -84,7 +84,7 @@ gcloud iam service-accounts keys create github-ci-key.json \
 
 ---
 
-## 4. Paso 2 — Artifact Registry
+## Paso 2 — Artifact Registry
 
 Crear el repositorio Docker en Artifact Registry (una sola vez):
 
@@ -133,7 +133,7 @@ Esto configura Docker para usar `gcloud` como credential helper al hacer pull de
 
 
 
-## 5. Paso 5 — Acceso SSH desde GitHub Actions al Control Node
+## Paso 3 — Acceso SSH desde GitHub Actions al Control Node
 
 Usamos el modelo de **trigger por SSH**: GitHub Actions, tras construir y subir las imágenes, se conecta por SSH al Control Node para ejecutar Ansible.
 
@@ -159,7 +159,7 @@ chmod 600 ~/.ssh/authorized_keys
 
 ---
 
-## 6. Paso 6 — Secretos en GitHub
+## Paso 4 — Secretos en GitHub
 
 Dentro de nuestro repositorio en GitHub → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.
 
@@ -179,7 +179,7 @@ Configuramos los siguientes secretos:
 
 ---
 
-## 7. Paso 7 — GitHub Actions Workflow
+## Paso 5 — GitHub Actions Workflow
 
 ### `.github/workflows/build-deploy.yml`
 
@@ -281,7 +281,7 @@ jobs:
 
 ---
 
-## 8. Paso 8 — Playbook de Ansible (Deploy)
+## Paso 6 — Playbook de Ansible (Deploy)
 
 Este playbook se ejecuta en el Control Node y despliega los contenedores en la VM de destino.
 
@@ -353,7 +353,7 @@ Este playbook se ejecuta en el Control Node y despliega los contenedores en la V
 
 ---
 
-## 10. Paso 10 — Verificación y Troubleshooting
+##  Paso 7 — Verificación y Troubleshooting
 
 ### Verificar el Pipeline Completo
 
