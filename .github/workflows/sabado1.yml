@@ -1,0 +1,87 @@
+name: Build and Deploy Crypto Chatbot
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGION: us-central1
+  REGISTRY: us-central1-docker.pkg.dev
+  REPO: agent-repo
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ─────────────────────────────────
+      # Checkout del código
+      # ─────────────────────────────────
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────
+      # Crear .env del backend dinámicamente
+      # ─────────────────────────────────
+      - name: Create backend .env
+        run: |
+          echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" > backend/.env
+
+      # ─────────────────────────────────
+      # Autenticación en GCP
+      # ─────────────────────────────────
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.REGISTRY }}
+
+      # ─────────────────────────────────
+      # Build y Push — Backend (Python)
+      # ─────────────────────────────────
+      - name: Build backend image
+        run: |
+          docker build \
+            -t ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-backend:${{ github.sha }} \
+            -t ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-backend:latest \
+            backend/
+
+      - name: Push backend image
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-backend:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-backend:latest
+
+      # ─────────────────────────────────
+      # Build y Push — Frontend (Nginx)
+      # ─────────────────────────────────
+      - name: Build frontend image
+        run: |
+          docker build \
+            -t ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:${{ github.sha }} \
+            -t ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:latest \
+            frontend/
+
+      - name: Push frontend image
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:latest
+
+      # ─────────────────────────────────
+      # Deploy vía SSH al Control Node
+      # ─────────────────────────────────
+      - name: Deploy via Control Node
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.CONTROL_HOST }}
+          username: ${{ secrets.CONTROL_HOST_USER }}
+          key: ${{ secrets.CONTROL_HOST_SSH_KEY }}
+          port: ${{ secrets.CONTROL_HOST_PORT }}
+          script: |
+            source ~/ansible-venv/bin/activate
+            cd ~/ansible-gcp
+            ansible-playbook -i inventory/gcp.yml \
+              playbooks/deploy-bot.yml \
+              --extra-vars "image_tag=${{ github.sha }}"
