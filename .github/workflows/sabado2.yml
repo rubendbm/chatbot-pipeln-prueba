@@ -12,6 +12,10 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # VITAL: Permisos necesarios para Workload Identity Federation
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     steps:
       # ─────────────────────────────────
@@ -28,13 +32,14 @@ jobs:
           echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" > backend/.env
 
       # ─────────────────────────────────
-      # Autenticación en GCP
+      # Autenticación en GCP (Corregida)
       # ─────────────────────────────────
       - name: 'Autenticación en Google Cloud'
         uses: 'google-github-actions/auth@v2'
-          with:
-            workload_identity_provider: 'projects/TU_NUMERO_DE_PROYECTO/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-            service_account: 'github-ci@monitoring-practice-483911.iam.gserviceaccount.com'
+        with:
+          workload_identity_provider: 'projects/TU_NUMERO_DE_PROYECTO/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'github-ci@monitoring-practice-483911.iam.gserviceaccount.com'
+
       - name: Configure Docker for Artifact Registry
         run: |
           gcloud auth configure-docker ${{ env.REGISTRY }}
