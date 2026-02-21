@@ -35,6 +35,14 @@ jobs:
         run: |
           echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" > backend/.env
 
+      # 🕵️‍♂️ DEBUG: Verificar si GitHub lee las variables
+      # ─────────────────────────────────────
+      - name: Debug Variables
+        run: |
+          echo "Revisando inyección de variables de GitHub..."
+          echo "Provider: '${{ vars.WORKLOAD_IDENTITY_PROVIDER }}'"
+          echo "Service Account: '${{ vars.SERVICE_ACCOUNT }}'"
+          echo "Project ID: '${{ vars.PROJECT_ID }}'"
       # ─────────────────────────────────────
       # 2. AUTENTICACIÓN SEGURA EN GCP (WIF)
       # ─────────────────────────────────────
