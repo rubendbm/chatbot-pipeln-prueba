@@ -104,10 +104,20 @@ jobs:
       # ─────────────────────────────────────
       # Deploy via Ansible → GKE
       # ─────────────────────────────────────
+      #- name: Deploy to GKE via Ansible
+        #env:
+         # PROJECT_ID: ${{ vars.PROJECT_ID }} # Inyectamos la variable correctamente
+          #USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
+        #run: |
+         # ansible-playbook ansible/deploy-gke.yml \
+           # --extra-vars "image_tag=${{ github.sha }}"
+
+          # ─────────────────────────────────────
+      # Deploy via Ansible → GKE
+      # ─────────────────────────────────────
       - name: Deploy to GKE via Ansible
         env:
-          PROJECT_ID: ${{ vars.PROJECT_ID }} # Inyectamos la variable correctamente
           USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
         run: |
           ansible-playbook ansible/deploy-gke.yml \
-            --extra-vars "image_tag=${{ github.sha }}"
+            --extra-vars "image_tag=${{ github.sha }} project_id=${{ secrets.PROJECT_ID }}"
