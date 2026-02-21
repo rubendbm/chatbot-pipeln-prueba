@@ -40,9 +40,9 @@ jobs:
       - name: Debug Variables
         run: |
           echo "Revisando inyección de variables de GitHub..."
-          echo "Provider: '${{ vars.WORKLOAD_IDENTITY_PROVIDER }}'"
-          echo "Service Account: '${{ vars.SERVICE_ACCOUNT }}'"
-          echo "Project ID: '${{ vars.PROJECT_ID }}'"
+          echo "Provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'"
+          echo "Service Account: '${{ secrets.SERVICE_ACCOUNT }}'"
+          echo "Project ID: '${{ secrets.PROJECT_ID }}'"
       # ─────────────────────────────────────
       # 2. AUTENTICACIÓN SEGURA EN GCP (WIF)
       # ─────────────────────────────────────
@@ -50,8 +50,8 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
 
       - name: Set up Cloud SDK with kubectl
         uses: google-github-actions/setup-gcloud@v2
@@ -69,14 +69,14 @@ jobs:
       - name: Build backend image
         run: |
           docker build \
-            -t ${{ env.REGISTRY }}/${{ vars.PROJECT_ID }}/${{ env.REPO }}/agent-backend:${{ github.sha }} \
-            -t ${{ env.REGISTRY }}/${{ vars.PROJECT_ID }}/${{ env.REPO }}/agent-backend:latest \
+            -t ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-backend:${{ github.sha }} \
+            -t ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-backend:latest \
             backend/
 
       - name: Push backend image
         run: |
-          docker push ${{ env.REGISTRY }}/${{ vars.PROJECT_ID }}/${{ env.REPO }}/agent-backend:${{ github.sha }}
-          docker push ${{ env.REGISTRY }}/${{ vars.PROJECT_ID }}/${{ env.REPO }}/agent-backend:latest
+          docker push ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-backend:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-backend:latest
 
       # ─────────────────────────────────────
       # 4. Build y Push — Frontend (Nginx)
@@ -85,14 +85,14 @@ jobs:
       - name: Build frontend image
         run: |
           docker build \
-            -t ${{ env.REGISTRY }}/${{ vars.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:${{ github.sha }} \
-            -t ${{ env.REGISTRY }}/${{ vars.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:latest \
+            -t ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:${{ github.sha }} \
+            -t ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:latest \
             frontend/
 
       - name: Push frontend image
         run: |
-          docker push ${{ env.REGISTRY }}/${{ vars.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:${{ github.sha }}
-          docker push ${{ env.REGISTRY }}/${{ vars.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:latest
+          docker push ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ secrets.PROJECT_ID }}/${{ env.REPO }}/agent-frontend:latest
 
       # ─────────────────────────────────────
       # Instalar Ansible y plugin de GKE
