@@ -31,9 +31,9 @@ jobs:
       # ─────────────────────────────────────
       # Crear .env del backend dinámicamente
       # ─────────────────────────────────────
-      - name: Create backend .env
-        run: |
-          echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" > backend/.env
+      #- name: Create backend .env
+        #run: |
+          #echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" > backend/.env
 
       # 🕵️‍♂️ DEBUG: Verificar si GitHub lee las variables
       # ─────────────────────────────────────
@@ -140,6 +140,7 @@ jobs:
       - name: Deploy to GKE via Ansible
         env:
           USE_GKE_GCLOUD_AUTH_PLUGIN: "True"
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
           ansible-playbook ansible/deploy-gke.yml \
             --extra-vars "image_tag=${{ github.sha }} project_id=${{ secrets.PROJECT_ID }}"
